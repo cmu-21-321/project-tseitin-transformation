@@ -1,67 +1,76 @@
-# ProjectTemplate
+# Tseitin Transformation in Lean
 
-A template for Lean 4 projects that depend on [Mathlib](https://github.com/leanprover-community/mathlib4).
+This individual project aims to implement the Tseitin transformation
+from propositional formulas to conjunctive normal form (CNF), prove its
+correctness, and establish linear bounds on the generated encoding.
 
-## Prerequisites
+## Main correctness goal
 
-Install Lean via [elan](https://github.com/leanprover/elan) (see the
-[Lean installation guide](https://lean-lang.org/install/)). The correct Lean version is
-picked up automatically from `lean-toolchain`.
+For every propositional formula φ and assignment σ to its original
+variables, σ satisfies φ if and only if there exists an assignment τ
+that agrees with σ on all original variables and satisfies the
+generated CNF.
 
-## 1. Rename the project
+The final CNF will include a unit clause asserting the variable
+representing the whole formula.
 
-After creating your repository from this template, rename it from `ProjectTemplate` to your
-own project name:
+## Checkpoint: October 23, 2026
+Completed:
 
-```bash
-./customize.sh MyProject
-```
+- Defined propositional formulas with variables, negation, conjunction,
+  and disjunction, together with their Boolean evaluation.
+- Defined original and auxiliary variables, literals, clauses, and CNF,
+  together with their Boolean evaluation.
+- Implemented local CNF encodings for AND, OR, and NOT.
+- Proved `encodeAnd_correct`, `encodeOr_correct`, and
+  `encodeNot_correct` by exhaustive Boolean case analysis.
+- Added evaluation examples, including the distinction between an
+  empty CNF and a CNF containing an empty clause.
 
-This updates `lakefile.toml`, `lake-manifest.json`, the Lean imports and this README's title, and
-renames `ProjectTemplate.lean` and `ProjectTemplate/` to `MyProject.lean` and `MyProject/`.
-The name must be a valid Lean module name (letters, digits and underscores, starting with a
-letter; UpperCamelCase is conventional). Commit the result, then delete `customize.sh`.
+## Representation choices
 
-## 2. Get the Mathlib cache
+Source variables are indexed by natural numbers. In the output,
+`Var.original n` and `Var.aux n` distinguish original variables from
+auxiliary variables, even when they share the same numeric index.
 
-Compiling Mathlib from source takes hours, so download the prebuilt files instead:
+Clauses are lists of literals, interpreted using disjunction.
+CNF formulas are lists of clauses, interpreted using conjunction.
+This representation also makes clause counts explicit.
+
+## Planned recursive transformation
+
+The encoder will take a formula and the next available auxiliary index.
+It will return:
+
+- a variable representing the formula;
+- the generated clauses;
+- the next unused auxiliary index.
+
+For binary connectives, the right subtree will receive the next index
+returned by the left subtree. The parent will then receive a fresh
+auxiliary variable.
+
+The final transformation will append a positive unit clause for the
+root variable.
+
+## Next checkpoint: October 30 - may change
+
+- Implement the recursive transformation.
+- Evaluate complete examples.
+- Establish supporting properties of auxiliary-variable allocation.
+- Develop the induction invariant for the global correctness proof.
+
+## Files
+
+- `Tseitin/Basic.lean`: formula syntax and evaluation.
+- `Tseitin/CNF.lean`: variables, literals, clauses, and CNF evaluation.
+- `Tseitin/Encoding.lean`: local encodings and correctness proofs.
+
+## Build
+
+The Lean version is specified in `lean-toolchain`.
 
 ```bash
 lake exe cache get
-```
-
-Re-run this whenever you change the Mathlib version (or if your editor starts rebuilding
-Mathlib files).
-
-## 3. Build and work on the project
-
-```bash
 lake build
 ```
-
-- Put your Lean files under `MyProject/` and import each one from `MyProject.lean`, so that
-  `lake build` (and CI) checks them.
-- Open the repository folder (not a single file) in VS Code with the Lean 4 extension.
-
-## Updating Mathlib
-
-Change the `rev` under `[[require]]` in `lakefile.toml` to the new Mathlib tag, and set
-`lean-toolchain` to match. Then run:
-
-```bash
-lake update mathlib
-lake exe cache get
-lake build
-```
-
-Alternatively, run the **Update Dependencies** workflow from the GitHub *Actions* tab: it
-opens a pull request if the update builds, or an issue if it doesn't. (Uncomment the
-`schedule` block in `.github/workflows/update.yml` to run it automatically.)
-
-## GitHub setup
-
-- **CI**: every push and pull request is built by `.github/workflows/lean_action_ci.yml`.
-- To let the update workflow open pull requests, go to **Settings → Actions → General** and
-  tick **Allow GitHub Actions to create and approve pull requests**.
-- To publish docs to GitHub Pages, set **Settings → Pages → Source** to "GitHub Actions" and
-  uncomment the `docgen-action` line in `lean_action_ci.yml`.
