@@ -117,4 +117,67 @@ theorem encodeOr_inRange {lo hi : Nat} {d a b : Var}
     (encodeOr d a b).AuxInRange lo hi := by
   simp [encodeOr, CNF.AuxInRange, Literal.AuxInRange, hd, ha, hb]
 
+
+/-- Every auxiliary variable in the generated clauses lies in the allocated interval. -/
+theorem encode_clauses_inRange (φ : Formula) (start : Nat) :
+    (encode φ start).clauses.AuxInRange start
+      (encode φ start).nextFresh := by
+  induction φ generalizing start with
+  | var n =>
+      simp [encode, CNF.AuxInRange]
+  | neg φ ih =>
+      let child := encode φ start
+      have hstep : child.nextFresh ≤ child.nextFresh + 1 := Nat.le_succ _
+      change (child.clauses ++ encodeNot (.aux child.nextFresh) child.root).AuxInRange
+        start (child.nextFresh + 1)
+      apply CNF.AuxInRange.append
+      · exact (ih start).widen (Nat.le_refl _) hstep
+      · exact encodeNot_inRange
+          (encode_root_inRange (.neg φ) start)
+          ((encode_root_inRange φ start).widen (Nat.le_refl _) hstep)
+  | conj φ ψ ihφ ihψ =>
+      let left := encode φ start
+      let right := encode ψ left.nextFresh
+      have hstart : start ≤ left.nextFresh := encode_nextFresh_ge φ start
+      have hright : right.nextFresh ≤ right.nextFresh + 1 := Nat.le_succ _
+      have hleft : left.nextFresh ≤ right.nextFresh + 1 :=
+        Nat.le_trans (encode_nextFresh_ge ψ left.nextFresh) hright
+      change (left.clauses ++ right.clauses ++
+        encodeAnd (.aux right.nextFresh) left.root right.root).AuxInRange
+          start (right.nextFresh + 1)
+      apply CNF.AuxInRange.append
+      · exact ((ihφ start).widen (Nat.le_refl _) hleft).append
+          ((ihψ left.nextFresh).widen hstart hright)
+      · exact encodeAnd_inRange
+          (encode_root_inRange (.conj φ ψ) start)
+          ((encode_root_inRange φ start).widen (Nat.le_refl _) hleft)
+          ((encode_root_inRange ψ left.nextFresh).widen hstart hright)
+  | disj φ ψ ihφ ihψ =>
+      let left := encode φ start
+      let right := encode ψ left.nextFresh
+      have hstart : start ≤ left.nextFresh := encode_nextFresh_ge φ start
+      have hright : right.nextFresh ≤ right.nextFresh + 1 := Nat.le_succ _
+      have hleft : left.nextFresh ≤ right.nextFresh + 1 :=
+        Nat.le_trans (encode_nextFresh_ge ψ left.nextFresh) hright
+      change (left.clauses ++ right.clauses ++
+        encodeOr (.aux right.nextFresh) left.root right.root).AuxInRange
+          start (right.nextFresh + 1)
+      apply CNF.AuxInRange.append
+      · exact ((ihφ start).widen (Nat.le_refl _) hleft).append
+          ((ihψ left.nextFresh).widen hstart hright)
+      · exact encodeOr_inRange
+          (encode_root_inRange (.disj φ ψ) start)
+          ((encode_root_inRange φ start).widen (Nat.le_refl _) hleft)
+          ((encode_root_inRange ψ left.nextFresh).widen hstart hright)
+
+/-- The final CNF, including its root assertion, uses only bounded auxiliary indices. -/
+theorem toCNF_inRange (φ : Formula) :
+    (toCNF φ).AuxInRange 0 φ.numConnectives := by
+  unfold toCNF
+  apply CNF.AuxInRange.append
+  · simpa [encode_nextFresh] using encode_clauses_inRange φ 0
+  · have hroot := encode_root_inRange φ 0
+    simpa [CNF.AuxInRange, Literal.AuxInRange, encode_nextFresh] using hroot
+
+
 end Tseitin
