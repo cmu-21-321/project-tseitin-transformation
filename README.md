@@ -60,18 +60,6 @@ The final soundness theorem additionally uses the root unit clause.
 
 This bound measures the number of generated clauses.
 
-## Next steps
-
-- Construct an assignment extension for the auxiliary variables.
-- Prove that recursive extensions preserve previously established
-  values and satisfied clauses.
-- Combine this construction with `toCNF_sound` to establish the
-  full correctness goal.
-
-After completing the core correctness proof, the planned application
-is a finite maintenance-scheduling model: express scheduling constraints
-as formulas and prove a correspondence between feasible schedules and
-satisfying assignments of the generated CNF.
 
 ## Files
 
