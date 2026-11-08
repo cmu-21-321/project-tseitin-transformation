@@ -5,3 +5,4 @@ import Tseitin.Transform
 import Tseitin.Allocation
 import Tseitin.Correctness
 import Tseitin.Size
+import Tseitin.Assignment
