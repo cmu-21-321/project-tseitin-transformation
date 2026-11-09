@@ -4,7 +4,7 @@ This project implements the Tseitin transformation from propositional
 formulas to conjunctive normal form (CNF) in Lean, with correctness
 proofs and bounds on the generated encoding.
 
-## Main correctness goal
+## Main correctness theorem
 
 For every propositional formula φ and assignment σ to its original
 variables, σ satisfies φ if and only if there exists an assignment τ
@@ -70,6 +70,10 @@ This bound measures the number of generated clauses.
 - `Tseitin/Allocation.lean`: auxiliary-counter and variable-range proofs.
 - `Tseitin/Correctness.lean`: root semantics and CNF-to-formula soundness.
 - `Tseitin/Size.lean`: exact clause counts and a linear upper bound.
+- `Tseitin/Assignment.lean`: assignment construction, preservation
+  lemmas, and satisfaction of all defining clauses.
+- `Tseitin/Completeness.lean`: completeness, assignment-extension
+  correctness, and equisatisfiability.
 
 ## Build
 

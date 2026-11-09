@@ -6,3 +6,4 @@ import Tseitin.Allocation
 import Tseitin.Correctness
 import Tseitin.Size
 import Tseitin.Assignment
+import Tseitin.Completeness
