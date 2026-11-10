@@ -10,11 +10,19 @@ For every propositional formula φ and assignment σ to its original
 variables, σ satisfies φ if and only if there exists an assignment τ
 that agrees with σ on all original variables and satisfies `toCNF φ`.
 
-Current status:
-- The direction from a satisfying CNF assignment to a satisfying
-  original assignment is proved (`toCNF_sound`).
-- The converse, constructing a satisfying extension of an original
-  assignment, remains to be proved.
+This statement is proved by `toCNF_correct`
+
+- `toCNF_sound`: every satisfying assignment of the generated CNF
+  restricts to a satisfying assignment of the original formula.
+- `toCNF_complete`: every satisfying original assignment can be
+  explicitly extended to satisfy the generated CNF.
+- `toCNF_equisatisfiable`: the original formula is satisfiable
+  if and only if its generated CNF is satisfiable.
+
+The construction preserves all original variable values. Auxiliary
+variables use a separate constructor and are allocated in disjoint
+ranges for recursive subformulas.
+
 
 ## Representation and transformation
 

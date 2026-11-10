@@ -19,14 +19,44 @@ def Literal.eval (τ : Var → Bool) : Literal → Bool
   | .pos v => τ v
   | .neg v => !(τ v)
 
+/--
+Clauses and CNFs are represented as lists so that the encoder can
+construct them directly and combine generated clauses by concatenation.
+No ordering or duplicate-removal invariant is required.
+
+List order and repeated entries do not affect the Boolean meaning of
+disjunction or conjunction. They do affect the stored representation;
+our clause-count bounds count list entries, including any duplicates.
+-/
+
 abbrev Clause := List Literal
 abbrev CNF := List Clause
 
-/-- A clause is true when at least one of its literals is true. -/
+/--
+Evaluate a clause as a finite disjunction of its literals.
+
+Use Boolean semantics to keep evaluation executable, consistent
+with `Formula.eval` and `Literal.eval`. Satisfaction is expressed in
+the correctness theorems by requiring the result to equal `true`.
+
+`List.any` implements disjunction: the clause is true exactly when
+some literal evaluates to true. The empty clause evaluates to false,
+representing an unsatisfiable disjunction.
+-/
 def Clause.eval (τ : Var → Bool) (clause : Clause) : Bool :=
   clause.any (Literal.eval τ)
 
-/-- A CNF is true when all of its clauses are true. -/
+/--
+Evaluate a CNF as a finite conjunction of its clauses.
+
+`List.all` implements conjunction: every clause must evaluate to true.
+The empty CNF evaluates to true, representing the absence of constraints.
+In contrast, a CNF containing an empty clause evaluates to false.
+
+This representation also supports compositional proofs: evaluating
+concatenated clause lists corresponds to conjoining their evaluations,
+as established by `CNF.eval_append`.
+-/
 def CNF.eval (τ : Var → Bool) (cnf : CNF) : Bool :=
   cnf.all (Clause.eval τ)
 
