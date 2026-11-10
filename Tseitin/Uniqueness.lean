@@ -74,4 +74,39 @@ theorem encode_aux_unique (φ : Formula) (start : Nat)
           exact encode_root_unique (.disj φ ψ) start τ₁ τ₂ hOriginal h₁ h₂
 
 
+/-- Every satisfying assignment of the defining clauses agrees with the
+constructed extension on the generated auxiliary variables. -/
+theorem encode_aux_eq_extension (φ : Formula) (start : Nat)
+    (τ υ : Var → Bool)
+    (hOriginal : ∀ n, τ (.original n) = υ (.original n))
+    (h : CNF.eval τ (encode φ start).clauses = true)
+    (k : Nat) (hlo : start ≤ k)
+    (hhi : k < (encode φ start).nextFresh) :
+    τ (.aux k) = extendAssignment φ start υ (.aux k) := by
+  apply encode_aux_unique φ start τ (extendAssignment φ start υ)
+  · intro n
+    rw [extendAssignment_original]
+    exact hOriginal n
+  · exact h
+  · exact extendAssignment_satisfies φ start υ
+  · exact hlo
+  · exact hhi
+
+/-- A model of the final CNF has the canonical auxiliary values determined
+by its original assignment, for every generated auxiliary index. -/
+theorem toCNF_aux_eq_extension (φ : Formula) (σ : Nat → Bool)
+    (τ : Var → Bool)
+    (hOriginal : ∀ n, τ (.original n) = σ n)
+    (h : CNF.eval τ (toCNF φ) = true)
+    (k : Nat) (hk : k < φ.numConnectives) :
+    τ (.aux k) = extendAssignment φ 0 (initialAssignment σ) (.aux k) := by
+  have hDef := (CNF.eval_append_true τ _ _).mp h
+  apply encode_aux_eq_extension φ 0 τ (initialAssignment σ)
+  · exact hOriginal
+  · exact hDef.1
+  · exact Nat.zero_le k
+  · simpa [encode_nextFresh] using hk
+
+
+
 end Tseitin
