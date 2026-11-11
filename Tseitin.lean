@@ -12,3 +12,7 @@ import Tseitin.Support
 import Tseitin.FiniteAssignment
 import Tseitin.ModelCount
 import Tseitin.FiniteCNF
+import Tseitin.ModelCorrespondence
+import Tseitin.ModelEquiv
+import Tseitin.Weighted
+import Tseitin.Probability
