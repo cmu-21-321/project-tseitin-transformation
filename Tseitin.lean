@@ -16,3 +16,6 @@ import Tseitin.ModelCorrespondence
 import Tseitin.ModelEquiv
 import Tseitin.Weighted
 import Tseitin.Probability
+import Tseitin.FaultTree
+import Tseitin.FaultProbability
+import Tseitin.ReliabilityExample
