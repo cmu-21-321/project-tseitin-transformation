@@ -93,8 +93,6 @@ theorem probability_bounds (φ : Formula) (m : IndependentModel) :
   ⟨probability_nonneg φ m, probability_le_one φ m⟩
 
 
-
-
 /-- Express event probability as a sum over all finite assignments,
 with zero contribution from assignments that do not satisfy the formula. -/
 theorem probability_eq_sum (φ : Formula) (m : IndependentModel) :
