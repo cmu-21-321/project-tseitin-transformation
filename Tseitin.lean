@@ -19,3 +19,4 @@ import Tseitin.Probability
 import Tseitin.FaultTree
 import Tseitin.FaultProbability
 import Tseitin.ReliabilityExample
+import Tseitin.Sensitivity
