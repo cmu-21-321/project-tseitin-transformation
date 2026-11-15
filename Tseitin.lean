@@ -20,3 +20,5 @@ import Tseitin.FaultTree
 import Tseitin.FaultProbability
 import Tseitin.ReliabilityExample
 import Tseitin.Sensitivity
+import Tseitin.Monotonicity
+import Tseitin.Intervals
