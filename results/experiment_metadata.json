@@ -1,0 +1,18 @@
+{
+  "python": "3.9.6 (default, Apr 30 2025, 02:07:17) \n[Clang 17.0.0 (clang-1700.0.13.5)]",
+  "exact": "199/10000",
+  "basic_probabilities": [
+    "1/100",
+    "1/10",
+    "1/10"
+  ],
+  "sample_sizes": [
+    1000,
+    10000,
+    100000
+  ],
+  "repetitions": 100,
+  "seed_rule": "20261111 + sample_count * 1000 + repetition",
+  "interval": "Wilson two-sided nominal 95%",
+  "verified_in_lean": false
+}
