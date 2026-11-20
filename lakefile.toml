@@ -1,7 +1,7 @@
 name = "Tseitin"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["Tseitin"]
+defaultTargets = ["Tseitin", "CourseChecks"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -16,3 +16,7 @@ rev = "v4.36.0-rc1"
 
 [[lean_lib]]
 name = "Tseitin"
+
+[[lean_lib]]
+name = "CourseChecks"
+roots = ["experiments.Audit", "experiments.ReportExperiments", "experiments.SensitivityCheck", "experiments.MonotonicityCheck", "experiments.IntervalCheck"]

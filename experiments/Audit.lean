@@ -22,3 +22,9 @@ import Tseitin
 -- Fault-tree semantics and probability preservation.
 #print axioms Tseitin.FaultTree.toFormula_correct
 #print axioms Tseitin.FaultTree.failureProbability_eq_cnf
+
+-- Sensitivity and interval bounds.
+#print axioms Tseitin.Formula.probability_withProb_affine
+#print axioms Tseitin.Formula.probability_mono
+#print axioms Tseitin.FaultTree.failureProbability_interval_bounds
+#print axioms Tseitin.FaultTree.failureProbability_cnf_interval_bounds
