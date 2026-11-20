@@ -1,91 +1,54 @@
-# Tseitin Transformation in Lean
+# Verified Tseitin Encoding and Probability Bounds in Lean 4
 
-This project implements the Tseitin transformation from propositional
-formulas to conjunctive normal form (CNF) in Lean, with correctness
-proofs and bounds on the generated encoding.
+This individual project for CMU 21-321 formalizes a Tseitin transformation
+and connects it to finite model counting, rational weighted counts, and
+probability bounds. The development ends with interval propagation for
+AND/OR fault trees whose branches may share components.
 
-## Main correctness theorem
+- [Project report](report/21321_project_paper_v1.pdf)
+- [Collaboration statement](COLLABORATION.md)
+- [AI-use statement](AI_USE.md)
 
-For every propositional formula φ and assignment σ to its original
-variables, σ satisfies φ if and only if there exists an assignment τ
-that agrees with σ on all original variables and satisfies `toCNF φ`.
+## Main results
 
-This statement is proved by `toCNF_correct`
+- **Encoding correctness:** `toCNF_correct` proves that a source assignment
+  satisfies a formula exactly when it has a satisfying CNF extension agreeing
+  on all original variables. `toCNF_length_le` bounds the clause count by
+  `3 * φ.numConnectives + 1`.
+- **Finite model correspondence:** uniqueness on the allocated auxiliary
+  interval gives `Formula.modelEquiv`, a bijection between source and CNF
+  models over their finite variable domains.
+- **Weighted counts and probability:**
+  `Formula.weightedModelCount_eq_weightedCNFModelCount` preserves rational
+  weighted counts when both auxiliary polarities have weight one.
+  Product weights on independent basic events specialize this to probability.
+- **Sensitivity and intervals:** `Formula.probability_withProb_affine` proves
+  affine response in one parameter. For monotone formulas,
+  `Formula.probability_mono` yields interval bounds;
+  `FaultTree.failureProbability_cnf_interval_bounds` transfers the endpoints
+  to CNF weighted counts.
 
-- `toCNF_sound`: every satisfying assignment of the generated CNF
-  restricts to a satisfying assignment of the original formula.
-- `toCNF_complete`: every satisfying original assignment can be
-  explicitly extended to satisfy the generated CNF.
-- `toCNF_equisatisfiable`: the original formula is satisfiable
-  if and only if its generated CNF is satisfiable.
+The shared-supply example has failure event `(A ∨ B) ∧ (A ∨ C)`.
+At probabilities `(0.01, 0.1, 0.1)`, its exact failure probability is 1.99%.
+The supplied parameter box gives bounds of 1.1368% and 2.9184%.
+These bounds assume parameter inclusion; the project does not estimate
+confidence intervals from data. Distinct basic events are independent,
+but branches containing the same event need not be.
 
-The construction preserves all original variable values. Auxiliary
-variables use a separate constructor and are allocated in disjoint
-ranges for recursive subformulas.
+## Code guide
 
-
-## Representation and transformation
-
-Formulas contain variables, negation, conjunction, and disjunction.
-Original and auxiliary variables use separate constructors:
-`Var.original n` and `Var.aux n`.
-
-The recursive encoder returns a representative variable, defining
-clauses, and the next unused auxiliary index. For binary connectives,
-the right subtree starts at the index returned by the left subtree.
-The parent then receives a fresh auxiliary variable.
-
-`toCNF` starts allocation at zero and appends a unit clause asserting
-that the root representative is true.
-
-
-## Checkpoint: November 6, 2026
-
-### Semantic correctness
-
-- Defined `restrictOriginal`, which restricts a target assignment
-  to the original variables.
-- Proved evaluation lemmas for concatenated CNFs.
-- Proved `encode_root_correct`: any assignment satisfying the
-  defining clauses gives the root representative the same value
-  as the original formula.
-- Proved `toCNF_sound`: any assignment satisfying the final CNF
-  restricts to a satisfying assignment of the original formula.
-
-The root correctness proof uses structural induction, combining
-the induction hypotheses with the local encoding correctness lemmas.
-The final soundness theorem additionally uses the root unit clause.
-
-### Clause-count bounds
-
-- Defined `Formula.clauseCount`, counting two defining clauses per
-  negation and three per conjunction or disjunction.
-- Proved exact counts for `encode` and `toCNF`
-  (`encode_clauseCount`, `toCNF_clauseCount`).
-- Proved `toCNF_length_le`:
-
-  `(toCNF φ).length ≤ 3 * φ.numConnectives + 1`
-
-This bound measures the number of generated clauses.
-
-
-## Files
-
-- `Tseitin/Basic.lean`: formula syntax and evaluation.
-- `Tseitin/CNF.lean`: target variables, literals, clauses, and evaluation.
-- `Tseitin/Encoding.lean`: local encodings and correctness proofs.
-- `Tseitin/Transform.lean`: recursive transformation and root assertion.
-- `Tseitin/Allocation.lean`: auxiliary-counter and variable-range proofs.
-- `Tseitin/Correctness.lean`: root semantics and CNF-to-formula soundness.
-- `Tseitin/Size.lean`: exact clause counts and a linear upper bound.
-- `Tseitin/Assignment.lean`: assignment construction, preservation
-  lemmas, and satisfaction of all defining clauses.
-- `Tseitin/Completeness.lean`: completeness, assignment-extension
-  correctness, and equisatisfiability.
+| Part | Files in `Tseitin/` (`.lean`) |
+| --- | --- |
+| Syntax and encoding | `Basic`, `CNF`, `Encoding`, `Transform` |
+| Correctness and size | `Allocation`, `Correctness`, `Size`, `Assignment`, `Completeness` |
+| Finite models | `Uniqueness`, `Support`, `FiniteAssignment`, `ModelCount`, `FiniteCNF`, `ModelCorrespondence`, `ModelEquiv` |
+| Weights and probability | `Weighted`, `Probability` |
+| Fault-tree application | `FaultTree`, `FaultProbability`, `ReliabilityExample` |
+| Sensitivity and bounds | `Sensitivity`, `Monotonicity`, `Intervals` |
 
 ## Build
 
-The Lean version is specified in `lean-toolchain`.
+Install Lean through elan. The version is specified in `lean-toolchain`.
 
 ```bash
 lake exe cache get
